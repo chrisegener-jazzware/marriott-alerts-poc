@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jazz Note — Marriott Staff Notification Platform</title>
+  <title>Jazz Note — Staff Notification Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet" />
@@ -19,15 +19,25 @@
         <!-- Jazz Note / Jazzware logo -->
         <div class="brand-logo">
           <div class="brand-logo-icon">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="9" fill="#0066CC"/>
-              <path d="M16 6C10.48 6 6 10.48 6 16s4.48 10 10 10 10-4.48 10-10S21.52 6 16 6zm0 2c1.27 0 2.3.98 2.3 2.2S17.27 12.4 16 12.4c-1.27 0-2.3-.98-2.3-2.2S14.73 8 16 8zm0 14.4c-2.5 0-4.71-1.28-6-3.22.03-2.01 4.01-3.11 6-3.11s5.97 1.1 6 3.11c-1.29 1.94-3.5 3.22-6 3.22z" fill="white"/>
-              <path d="M22 13.5l2.5 2.5-2.5 2.5" stroke="#D4A017" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="120" height="22" viewBox="0 0 5987 1066" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jazzware">
+              <defs><linearGradient id="jw-grad" gradientUnits="userSpaceOnUse" x1="60" y1="0" x2="5927" y2="0"><stop offset="0" stop-color="#2D67B2"/><stop offset="0.40" stop-color="#2D67B2"/><stop offset="0.55" stop-color="#179BAD"/><stop offset="1" stop-color="#179BAD"/></linearGradient></defs>
+              <rect x="0" y="0" width="5987" height="31.35" fill="#2D67B2"/>
+              <rect x="0" y="1034.55" width="5987" height="31.35" fill="#2D67B2"/>
+              <g transform="translate(60, 846.45)" fill="url(#jw-grad)">
+                <path d="M296-231L296-231L296-627L360-627L360-227Q360-105 307-49Q254 7 137 7L137 7Q102 7 73 4Q44 1 20-6L20-6L20-66Q47-59 72.50-56Q98-53 127-53L127-53Q220-53 258-93.50Q296-134 296-231Z"/>
+                <path d="M760-165L695 0L627 0L879-627L946-627L1197 0L1128 0L1064-165L760-165ZM911-570L911-570Q903-545 893-515Q883-485 860-422L860-422L782-222L1042-222L964-422Q949-461 935.50-498.50Q922-536 911-570Z"/>
+                <path d="M1489-61L1874-61L1874 0L1415 0L1415-61L1783-568L1444-568L1444-627L1855-627L1855-568L1489-61Z"/>
+                <path d="M2177-61L2562-61L2562 0L2103 0L2103-61L2471-568L2132-568L2132-627L2543-627L2543-568L2177-61Z"/>
+                <path d="M3034 0L2961 0L2784-627L2854-627L2969-205Q2973-191 2980.50-155Q2988-119 2999-60L2999-60Q3001-68 3013.50-123Q3026-178 3033-205L3033-205L3162-627L3230-627L3359-205Q3365-184 3372-155Q3379-126 3393-62L3393-62Q3396-75 3406.50-127Q3417-179 3424-205L3424-205L3538-627L3606-627L3429 0L3357 0L3237-379Q3226-416 3216-456Q3206-496 3195-547L3195-547Q3184-496 3174-456Q3164-416 3153-379L3153-379L3034 0Z"/>
+                <path d="M3950-165L3885 0L3817 0L4069-627L4136-627L4387 0L4318 0L4254-165L3950-165ZM4101-570L4101-570Q4093-545 4083-515Q4073-485 4050-422L4050-422L3972-222L4232-222L4154-422Q4139-461 4125.50-498.50Q4112-536 4101-570Z"/>
+                <path d="M4889-232L4723-232L4723 0L4659 0L4659-627L4867-627Q4996-627 5053-582Q5110-537 5110-436L5110-436Q5110-353 5072-304Q5034-255 4957-240L4957-240L5125 0L5048 0L4889-232ZM5045-436L5045-436Q5045-507 5004-537.50Q4963-568 4867-568L4867-568L4723-568L4723-289L4867-289Q4960-289 5002.50-324Q5045-359 5045-436Z"/>
+                <path d="M5482-61L5829-61L5829 0L5418 0L5418-627L5820-627L5820-568L5482-568L5482-350L5783-350L5783-293L5482-293L5482-61Z"/>
+              </g>
             </svg>
           </div>
           <div>
             <div class="brand-name">Jazz Note</div>
-            <div class="brand-tagline">by Jazzware · Staff Notification Platform</div>
+            <div class="brand-tagline">Staff Notification Platform</div>
           </div>
         </div>
 
@@ -37,9 +47,15 @@
             <span class="demo-dot"></span>
             Live Demo
           </div>
-          <div class="client-badge">
-            <div class="client-badge-logo"><em>M</em></div>
-            Marriott International
+          <div class="brand-selector-wrap">
+            <select class="brand-selector" id="brandSelector" onchange="app.changeBrand(this.value)">
+              <option value="marriott">Marriott International</option>
+              <option value="hilton">Hilton Hotels</option>
+              <option value="ihg">IHG Hotels &amp; Resorts</option>
+              <option value="hyatt">Hyatt Hotels</option>
+              <option value="wyndham">Wyndham Hotels</option>
+              <option value="accor">Accor</option>
+            </select>
           </div>
         </div>
       </div>
@@ -87,7 +103,7 @@
             <div class="screen-header dark-header">
               <div class="screen-header-content">
                 <div>
-                  <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Marriott Downtown Convention Center</div>
+                  <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px" id="feedPropertyName">Marriott Downtown Convention Center</div>
                   <div class="screen-title">Staff Alerts</div>
                   <div class="screen-subtitle" id="feedSubtitle">Loading…</div>
                 </div>
@@ -134,7 +150,7 @@
           <div class="screen hidden" id="screen-create" data-screen="create">
             <div class="screen-header dark-header">
               <div>
-                <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Marriott Downtown Convention Center</div>
+                <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px" id="createPropertyName">Marriott Downtown Convention Center</div>
                 <div class="screen-title">Create Alert</div>
                 <div class="screen-subtitle">Route via alert type rules</div>
               </div>
@@ -317,7 +333,7 @@
                   <div class="stat-card">
                     <div class="stat-card-icon">✅</div>
                     <div class="stat-num green" id="statAcked">0</div>
-                    <div class="stat-lbl">Acked</div>
+                    <div class="stat-lbl">Acknowledged</div>
                   </div>
                 </div>
 
@@ -363,7 +379,7 @@
                   <div class="info-row"><span>App Name</span><span class="info-val">Jazz Note</span></div>
                   <div class="info-row"><span>Version</span><span class="info-val">3.0.0 (POC)</span></div>
                   <div class="info-row"><span>Build</span><span class="info-val">Demo — No Backend</span></div>
-                  <div class="info-row"><span>Property</span><span class="info-val">MDCC-001</span></div>
+                  <div class="info-row"><span>Property</span><span class="info-val" id="demoPropertyCode">MDCC-001</span></div>
                   <div class="info-row" style="border:none"><span>Routing</span><span class="info-val">8 Active Rules</span></div>
                 </div>
 
@@ -384,9 +400,9 @@
                       <path d="M3 15L10 5l7 10H3z" fill="#83002E" opacity="0.4"/>
                       <path d="M6 15l4-6 4 6" stroke="#83002E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Marriott International — Proof of Concept
+                    <span id="demoBrandName">Marriott International</span> — Proof of Concept
                   </div>
-                  <div class="disclaimer-text">This is a proof-of-concept demo.<br>Not an official Marriott product. No real data.</div>
+                  <div class="disclaimer-text">This is a proof-of-concept demo.<br>Not an official <span id="demoDisclaimerBrand">Marriott</span> product. No real data.</div>
                 </div>
 
               </div>
@@ -465,7 +481,7 @@
       <span class="footer-sep">·</span>
       <span>Jazz Note v3.0</span>
       <span class="footer-sep">·</span>
-      <span>Marriott International POC</span>
+      <span id="footerBrand">Marriott International POC</span>
       <span class="footer-sep">·</span>
       <span>Demo Build — No Real Data</span>
     </footer>

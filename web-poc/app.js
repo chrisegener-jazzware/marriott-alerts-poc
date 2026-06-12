@@ -2,7 +2,7 @@
    JAZZ NOTE — Web App Logic  v3.0
    Pure vanilla JS · Zero dependencies
    Severity-based escalation + distribution groups
-   Jazzware · Marriott International Demo
+   Jazzware · Hotel Brand Demo
 ═══════════════════════════════════════════════════════ */
 
 'use strict';
@@ -260,6 +260,78 @@ function createSeedAlerts() {
 // ────────────────────────────────────────────────────────
 // STATE
 // ────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────
+// BRAND PRESETS
+// ────────────────────────────────────────────────────────
+const BRANDS = {
+  marriott: {
+    name: 'Marriott International',
+    short: 'Marriott',
+    property: 'Marriott Downtown Convention Center',
+    code: 'MDCC-001',
+    accent: '#83002E',
+    accentDark: '#5C001F',
+    accentLight: '#FEF2F5',
+    accentBorder: '#FECDD9',
+    logo: 'M',
+  },
+  hilton: {
+    name: 'Hilton Hotels',
+    short: 'Hilton',
+    property: 'Hilton Garden Inn Midtown',
+    code: 'HGIM-042',
+    accent: '#104C97',
+    accentDark: '#0A3567',
+    accentLight: '#EBF3FF',
+    accentBorder: '#B3D1F5',
+    logo: 'H',
+  },
+  ihg: {
+    name: 'IHG Hotels & Resorts',
+    short: 'IHG',
+    property: 'Holiday Inn Express Airport',
+    code: 'HIEA-118',
+    accent: '#1B6B3E',
+    accentDark: '#0F4527',
+    accentLight: '#EEFAF2',
+    accentBorder: '#B3E5C8',
+    logo: 'I',
+  },
+  hyatt: {
+    name: 'Hyatt Hotels',
+    short: 'Hyatt',
+    property: 'Hyatt Regency Waterfront',
+    code: 'HRWF-007',
+    accent: '#94450B',
+    accentDark: '#6B3108',
+    accentLight: '#FFF6ED',
+    accentBorder: '#F5D5B5',
+    logo: 'Hy',
+  },
+  wyndham: {
+    name: 'Wyndham Hotels',
+    short: 'Wyndham',
+    property: 'Wyndham Grand Resort & Spa',
+    code: 'WGRS-055',
+    accent: '#00529B',
+    accentDark: '#003B70',
+    accentLight: '#EDF5FF',
+    accentBorder: '#A8D0F5',
+    logo: 'W',
+  },
+  accor: {
+    name: 'Accor',
+    short: 'Accor',
+    property: 'Novotel City Centre',
+    code: 'NVCC-203',
+    accent: '#1C1C50',
+    accentDark: '#0E0E30',
+    accentLight: '#F0F0F8',
+    accentBorder: '#BCBCE0',
+    logo: 'A',
+  },
+};
+
 const state = {
   alerts: createSeedAlerts(),
   role: 'admin',
@@ -267,6 +339,7 @@ const state = {
   currentAlertId: null,
   selectedRuleId: null,
   expandedGroups: new Set(),
+  brand: 'marriott',
 };
 
 // ────────────────────────────────────────────────────────
@@ -366,19 +439,24 @@ function navigate(screen, alertId) {
   if (!nextEl || screen === prev) return;
 
   const isPush = (screen === 'detail');
-  const isPop  = (prev === 'detail' && screen === 'feed');
+  const isPop  = (prev === 'detail');
+
+  // Always hide ALL screens first to prevent stacking
+  document.querySelectorAll('.screen').forEach(s => {
+    if (s !== nextEl) {
+      s.classList.add('hidden');
+      s.classList.remove('slide-left');
+      s.style.animation = '';
+    }
+  });
 
   if (isPush) {
-    prevEl.classList.add('slide-left');
     nextEl.classList.remove('hidden', 'slide-left');
     nextEl.style.animation = 'slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
   } else if (isPop) {
-    prevEl.classList.add('hidden');
-    prevEl.classList.remove('slide-left');
     nextEl.classList.remove('slide-left', 'hidden');
     nextEl.style.animation = '';
   } else {
-    if (prevEl) { prevEl.classList.add('hidden'); prevEl.classList.remove('slide-left'); }
     nextEl.classList.remove('hidden', 'slide-left');
     nextEl.style.animation = 'fadeInUp 0.25s ease forwards';
   }
@@ -734,7 +812,7 @@ function renderDetail(alertId) {
         <path d="M2 16L10 4l8 12H2z" fill="#83002E" opacity="0.3"/>
         <path d="M6 16l4-7 4 7" stroke="#83002E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Marriott Downtown Convention Center
+      <span id="detailPropertyStamp">${escHtml(BRANDS[state.brand].property)}</span>
     </div>
 
     <div style="height:32px"></div>
@@ -1151,6 +1229,70 @@ function resetDemoData() {
 }
 
 // ────────────────────────────────────────────────────────
+// BRAND SWITCHING
+// ────────────────────────────────────────────────────────
+function changeBrand(brandKey) {
+  if (!BRANDS[brandKey]) return;
+  state.brand = brandKey;
+  applyBrand();
+  showToast(`Switched to ${BRANDS[brandKey].name}`);
+}
+
+function applyBrand() {
+  const b = BRANDS[state.brand];
+  if (!b) return;
+
+  // Update CSS custom properties for accent color
+  const root = document.documentElement;
+  root.style.setProperty('--brand-accent', b.accent);
+  root.style.setProperty('--brand-accent-dk', b.accentDark);
+  root.style.setProperty('--brand-accent-lt', b.accentLight);
+  root.style.setProperty('--brand-accent-border', b.accentBorder);
+
+  // Update property names throughout the UI
+  const propEls = ['feedPropertyName', 'createPropertyName'];
+  propEls.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = b.property;
+  });
+
+  // Demo tab brand references
+  const demoCode = document.getElementById('demoPropertyCode');
+  if (demoCode) demoCode.textContent = b.code;
+  const demoBrand = document.getElementById('demoBrandName');
+  if (demoBrand) demoBrand.textContent = b.name;
+  const demoDisclaimer = document.getElementById('demoDisclaimerBrand');
+  if (demoDisclaimer) demoDisclaimer.textContent = b.short;
+
+  // Footer
+  const footerBrand = document.getElementById('footerBrand');
+  if (footerBrand) footerBrand.textContent = `${b.name} POC`;
+
+  // Dark header accent stripe
+  const stripeColor = b.accent;
+  const rule = `.dark-header::after { background: linear-gradient(90deg, ${stripeColor} 0%, ${b.accentDark} 60%, transparent 100%) !important; }`;
+  let styleTag = document.getElementById('brand-dynamic-css');
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = 'brand-dynamic-css';
+    document.head.appendChild(styleTag);
+  }
+  styleTag.textContent = `
+    ${rule}
+    .fab { background: linear-gradient(135deg, ${b.accent}, ${b.accentDark}) !important; box-shadow: 0 4px 16px ${b.accent}66 !important; }
+    .submit-btn { background: linear-gradient(135deg, ${b.accent}, ${b.accentDark}) !important; box-shadow: 0 4px 16px ${b.accent}55 !important; }
+    .ack-button { background: linear-gradient(135deg, ${b.accent}, ${b.accentDark}) !important; box-shadow: 0 4px 16px ${b.accent}55 !important; }
+    .tab-item.active .tab-icon { color: ${b.accent} !important; }
+    .tab-item.active .tab-label { color: ${b.accent} !important; }
+    .toggle-switch input:checked + .toggle-slider { background: ${b.accent} !important; }
+  `;
+
+  // Re-render current screen to pick up stamp changes
+  if (state.currentScreen === 'detail' && state.currentAlertId) renderDetail(state.currentAlertId);
+  if (state.currentScreen === 'demo') renderDemo();
+}
+
+// ────────────────────────────────────────────────────────
 // CHAR COUNT HELPER
 // ────────────────────────────────────────────────────────
 function updateCharCount(inputId, countId, max) {
@@ -1201,6 +1343,7 @@ window.app = {
   triggerScenario,
   resetDemoData,
   updateCharCount,
+  changeBrand,
 };
 
 // ────────────────────────────────────────────────────────
@@ -1209,6 +1352,7 @@ window.app = {
 document.addEventListener('DOMContentLoaded', () => {
   updateClock();
   setInterval(updateClock, 15000);
+  applyBrand();
   renderFeed();
   updateTabBadge();
 });
