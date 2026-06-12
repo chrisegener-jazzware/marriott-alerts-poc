@@ -5,21 +5,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AlertFeedScreen from '../screens/AlertFeedScreen';
 import AlertDetailScreen from '../screens/AlertDetailScreen';
-import CreateAlertScreen from '../screens/CreateAlertScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import { useAlerts } from '../context/AlertContext';
+import RoutingRulesScreen from '../screens/RoutingRulesScreen';
+import DistributionGroupsScreen from '../screens/DistributionGroupsScreen';
+import DemoControlsScreen from '../screens/DemoControlsScreen';
+import { useApp } from '../context/AppContext';
+import { RootStackParamList, MainTabParamList } from '../types';
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-
-function AlertsStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AlertFeed" component={AlertFeedScreen} />
-      <Stack.Screen name="AlertDetail" component={AlertDetailScreen} />
-    </Stack.Navigator>
-  );
-}
+const Tab = createBottomTabNavigator<MainTabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function TabIcon({
   icon,
@@ -36,7 +29,7 @@ function TabIcon({
     <View style={tabStyles.iconContainer}>
       <View>
         <Text style={[tabStyles.icon, focused && tabStyles.iconFocused]}>{icon}</Text>
-        {badge && badge > 0 ? (
+        {badge != null && badge > 0 ? (
           <View style={tabStyles.badge}>
             <Text style={tabStyles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
           </View>
@@ -68,58 +61,72 @@ const tabStyles = StyleSheet.create({
   badgeText: { color: '#FFF', fontSize: 9, fontWeight: '700' },
 });
 
-export default function AppNavigator() {
-  const { unreadCount, role } = useAlerts();
+function MainTabs() {
+  const { unreadCount, role } = useApp();
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: {
-            backgroundColor: '#1C1C1C',
-            borderTopColor: '#333',
-            borderTopWidth: 1,
-            height: 80,
-            paddingBottom: 16,
-          },
-          tabBarActiveTintColor: '#B8860B',
-          tabBarInactiveTintColor: '#666',
-          tabBarShowLabel: false,
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#1C1C1C',
+          borderTopColor: '#333',
+          borderTopWidth: 1,
+          height: 80,
+          paddingBottom: 16,
+        },
+        tabBarActiveTintColor: '#B8860B',
+        tabBarInactiveTintColor: '#666',
+        tabBarShowLabel: false,
+      }}
+    >
+      <Tab.Screen
+        name="Feed"
+        component={AlertFeedScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🔔" label="Alerts" focused={focused} badge={unreadCount} />
+          ),
         }}
-      >
-        <Tab.Screen
-          name="Alerts"
-          component={AlertsStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="🔔" label="Alerts" focused={focused} badge={unreadCount} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="CreateAlert"
-          component={CreateAlertScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon
-                icon={role === 'admin' ? '📢' : '🔒'}
-                label="Create"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="⚙️" label="Settings" focused={focused} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      />
+      <Tab.Screen
+        name="RoutingRules"
+        component={RoutingRulesScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🗺️" label="Routing" focused={focused} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Groups"
+        component={DistributionGroupsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="👥" label="Groups" focused={focused} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Demo"
+        component={DemoControlsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🎛️" label="Demo" focused={focused} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="AlertDetail" component={AlertDetailScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

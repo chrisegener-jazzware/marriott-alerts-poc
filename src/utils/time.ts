@@ -4,21 +4,20 @@ export function formatRelativeTime(date: Date): string {
   const diffSec = Math.floor(diffMs / 1000);
   const diffMin = Math.floor(diffSec / 60);
   const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
 
-  if (diffSec < 60) return 'Just now';
-  if (diffMin < 60) return `${diffMin} min ago`;
-  if (diffHr < 24) return `${diffHr} hr ago`;
-  return `${diffDay}d ago`;
+  if (diffSec < 10) return 'just now';
+  if (diffSec < 60) return `${diffSec}s ago`;
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDays = Math.floor(diffHr / 24);
+  return `${diffDays}d ago`;
 }
 
-export function formatFullTime(date: Date): string {
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+export function formatTimestamp(date: Date): string {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatDateTime(date: Date): string {
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) +
+    ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }

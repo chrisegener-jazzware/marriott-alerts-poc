@@ -1,37 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Severity } from '../types';
+import { SeverityLevel, SEVERITY_META } from '../types';
 
 interface Props {
-  severity: Severity;
-  large?: boolean;
+  severity: SeverityLevel;
+  size?: 'sm' | 'md';
 }
 
-const SEVERITY_CONFIG: Record<
-  Severity,
-  { label: string; bg: string; text: string; dot: string }
-> = {
-  critical: { label: 'CRITICAL', bg: '#FDECEA', text: '#C62828', dot: '#E53935' },
-  high: { label: 'HIGH', bg: '#FFF3E0', text: '#E65100', dot: '#FB8C00' },
-  medium: { label: 'MEDIUM', bg: '#FFFDE7', text: '#F57F17', dot: '#FDD835' },
-  low: { label: 'LOW', bg: '#E3F2FD', text: '#1565C0', dot: '#1E88E5' },
-};
-
-export default function SeverityBadge({ severity, large = false }: Props) {
-  const config = SEVERITY_CONFIG[severity];
+export default function SeverityBadge({ severity, size = 'md' }: Props) {
+  const meta = SEVERITY_META[severity];
+  const isSmall = size === 'sm';
   return (
     <View
       style={[
         styles.badge,
-        { backgroundColor: config.bg },
-        large && styles.badgeLarge,
+        { backgroundColor: meta.bgColor, borderColor: meta.color },
+        isSmall && styles.badgeSm,
       ]}
     >
-      <View style={[styles.dot, { backgroundColor: config.dot }]} />
-      <Text
-        style={[styles.text, { color: config.text }, large && styles.textLarge]}
-      >
-        {config.label}
+      <Text style={[styles.text, { color: meta.color }, isSmall && styles.textSm]}>
+        {meta.icon} {meta.label}
       </Text>
     </View>
   );
@@ -39,31 +27,22 @@ export default function SeverityBadge({ severity, large = false }: Props) {
 
 const styles = StyleSheet.create({
   badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 12,
     alignSelf: 'flex-start',
   },
-  badgeLarge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 5,
+  badgeSm: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
   text: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  textLarge: {
-    fontSize: 13,
-    letterSpacing: 0.8,
+  textSm: {
+    fontSize: 10,
   },
 });

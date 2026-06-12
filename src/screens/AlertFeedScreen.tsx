@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   FlatList,
@@ -9,30 +9,43 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAlerts } from '../context/AlertContext';
+import { useApp } from '../context/AppContext';
 import AlertCard from '../components/AlertCard';
-import { Alert } from '../types';
+import { JazzAlert } from '../types';
+
+type FilterTab = 'all' | 'active' | 'resolved';
 
 export default function AlertFeedScreen() {
-  const { alerts, role, unreadCount } = useAlerts();
+  const { alerts, role, unreadCount } = useApp();
   const navigation = useNavigation<any>();
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [filter, setFilter] = useState<FilterTab>('all');
 
-  const sorted = [...alerts].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-  );
+  const sorted = [...alerts].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+  const filtered = sorted.filter((a) => {
+    if (filter === 'active') return a.status !== 'resolved';
+    if (filter === 'resolved') return a.status === 'resolved';
+    return true;
+  });
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => setRefreshing(false), 600);
   }, []);
 
-  const renderItem = ({ item }: { item: Alert }) => (
+  const renderItem = ({ item }: { item: JazzAlert }) => (
     <AlertCard
       alert={item}
       onPress={() => navigation.navigate('AlertDetail', { alertId: item.id })}
     />
   );
+
+  const TABS: { key: FilterTab; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'resolved', label: 'Resolved' },
+  ];
 
   return (
     <View style={styles.container}>
@@ -41,33 +54,42 @@ export default function AlertFeedScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Staff Alerts</Text>
+          <Text style={styles.headerTitle}>🎵 Jazz Note</Text>
           <Text style={styles.headerSub}>
             {unreadCount > 0
-              ? `${unreadCount} unread alert${unreadCount > 1 ? 's' : ''}`
-              : 'All alerts acknowledged'}
+              ? `${unreadCount} alert${unreadCount !== 1 ? 's' : ''} need attention`
+              : 'All clear'}
           </Text>
         </View>
-        <View style={styles.headerRight}>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>
-              {role === 'admin' ? '👑 Admin' : '👤 Staff'}
-            </Text>
-          </View>
+        <View style={styles.roleBadge}>
+          <Text style={styles.roleText}>{role === 'admin' ? '👑 Admin' : '👤 Staff'}</Text>
         </View>
       </View>
 
-      {/* Alert count strip */}
-      {unreadCount > 0 && (
-        <View style={styles.urgentStrip}>
-          <Text style={styles.urgentText}>
-            ⚠️  {unreadCount} alert{unreadCount !== 1 ? 's' : ''} require{unreadCount === 1 ? 's' : ''} attention
-          </Text>
+      {/* Unacked P1 strip */}
+      {alerts.some((a) => a.severity === 'P1' && a.status !== 'resolved' && a.acks.length === 0) && (
+        <View style={styles.criticalStrip}>
+          <Text style={styles.criticalText}>🔴  CRITICAL alerts require immediate response</Text>
         </View>
       )}
 
+      {/* Filter tabs */}
+      <View style={styles.filterRow}>
+        {TABS.map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            style={[styles.filterTab, filter === tab.key && styles.filterTabActive]}
+            onPress={() => setFilter(tab.key)}
+          >
+            <Text style={[styles.filterTabText, filter === tab.key && styles.filterTabTextActive]}>
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <FlatList
-        data={sorted}
+        data={filtered}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
@@ -83,30 +105,16 @@ export default function AlertFeedScreen() {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>✅</Text>
-            <Text style={styles.emptyText}>No alerts at this time</Text>
+            <Text style={styles.emptyText}>No alerts to show</Text>
           </View>
         }
       />
-
-      {/* FAB — admin only */}
-      {role === 'admin' && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => navigation.navigate('CreateAlert')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F4F6',
-  },
+  container: { flex: 1, backgroundColor: '#F4F4F6' },
   header: {
     backgroundColor: '#1C1C1C',
     paddingTop: 56,
@@ -128,9 +136,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '500',
   },
-  headerRight: {
-    alignItems: 'flex-end',
-  },
   roleBadge: {
     backgroundColor: 'rgba(184,134,11,0.2)',
     borderWidth: 1,
@@ -139,59 +144,35 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 16,
   },
-  roleText: {
-    color: '#B8860B',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  urgentStrip: {
-    backgroundColor: '#FFF3CD',
+  roleText: { color: '#B8860B', fontSize: 12, fontWeight: '600' },
+  criticalStrip: {
+    backgroundColor: '#FF3B3018',
     borderBottomWidth: 1,
-    borderBottomColor: '#FFEAA7',
+    borderBottomColor: '#FF3B3040',
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
-  urgentText: {
-    color: '#856404',
-    fontSize: 13,
-    fontWeight: '600',
+  criticalText: { color: '#FF3B30', fontSize: 13, fontWeight: '700' },
+  filterRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    gap: 8,
   },
-  list: {
-    paddingTop: 12,
-    paddingBottom: 100,
+  filterTab: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#F0F0F0',
   },
-  empty: {
-    alignItems: 'center',
-    marginTop: 80,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyText: {
-    color: '#888',
-    fontSize: 16,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 90,
-    right: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#B8860B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#B8860B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  fabText: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '300',
-    lineHeight: 36,
-  },
+  filterTabActive: { backgroundColor: '#B8860B' },
+  filterTabText: { fontSize: 13, color: '#666', fontWeight: '600' },
+  filterTabTextActive: { color: '#fff' },
+  list: { paddingTop: 12, paddingBottom: 100 },
+  empty: { alignItems: 'center', marginTop: 80 },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyText: { color: '#888', fontSize: 16 },
 });

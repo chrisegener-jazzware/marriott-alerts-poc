@@ -38,7 +38,6 @@
             Live Demo
           </div>
           <div class="client-badge">
-            <!-- Marriott M wordmark -->
             <div class="client-badge-logo"><em>M</em></div>
             Marriott International
           </div>
@@ -59,21 +58,18 @@
         <div class="status-bar">
           <span class="status-time" id="statusTime">9:41</span>
           <div class="status-icons">
-            <!-- Signal bars -->
             <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
               <rect x="0"   y="4" width="3" height="8" rx="1" fill="white" opacity="0.35"/>
               <rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="white" opacity="0.6"/>
               <rect x="9"   y="1" width="3" height="11" rx="1" fill="white" opacity="0.8"/>
               <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white"/>
             </svg>
-            <!-- WiFi -->
             <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
               <path d="M8 2C10.7 2 13.1 3.3 14.6 5.4L16 4C14.1 1.5 11.2 0 8 0C4.8 0 1.9 1.5 0 4L1.4 5.4C2.9 3.3 5.3 2 8 2Z" fill="white" opacity="0.4"/>
               <path d="M8 5C9.7 5 11.2 5.8 12.2 7L13.6 5.6C12.2 4 10.2 3 8 3C5.8 3 3.8 4 2.4 5.6L3.8 7C4.8 5.8 6.3 5 8 5Z" fill="white" opacity="0.7"/>
               <path d="M8 8C8.8 8 9.6 8.3 10.2 9L11.6 7.6C10.6 6.6 9.4 6 8 6C6.6 6 5.4 6.6 4.4 7.6L5.8 9C6.4 8.3 7.2 8 8 8Z" fill="white"/>
               <circle cx="8" cy="11" r="1.5" fill="white"/>
             </svg>
-            <!-- Battery -->
             <div class="battery-icon">
               <div class="battery-body">
                 <div class="battery-fill" style="width:78%"></div>
@@ -140,7 +136,7 @@
               <div>
                 <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Marriott Downtown Convention Center</div>
                 <div class="screen-title">Create Alert</div>
-                <div class="screen-subtitle">Broadcast to all hotel staff</div>
+                <div class="screen-subtitle">Route via alert type rules</div>
               </div>
             </div>
             <div class="screen-scroll-area" id="createFormArea">
@@ -149,25 +145,41 @@
               <div id="createRestricted" class="hidden restricted-view">
                 <div class="restricted-icon">🔒</div>
                 <div class="restricted-title">Admin Access Required</div>
-                <div class="restricted-sub">Switch to Admin role in Settings to create and broadcast alerts.</div>
+                <div class="restricted-sub">Switch to Admin role in the Demo tab to create and route alerts.</div>
               </div>
 
               <!-- Create form (admin) -->
               <div id="createForm" class="form-body">
                 <div class="form-group">
-                  <label class="form-label">Severity Level</label>
-                  <div class="severity-picker" id="severityPicker">
-                    <button class="sev-btn" data-value="critical" onclick="app.setSeverity('critical')">🔴 Critical</button>
-                    <button class="sev-btn" data-value="high"     onclick="app.setSeverity('high')">🟠 High</button>
-                    <button class="sev-btn sev-active" data-value="medium" onclick="app.setSeverity('medium')">🟡 Medium</button>
-                    <button class="sev-btn" data-value="low"      onclick="app.setSeverity('low')">🔵 Low</button>
+                  <label class="form-label" for="alertTypeSelect">Alert Type</label>
+                  <select class="form-input form-select" id="alertTypeSelect" onchange="app.onAlertTypeChange()">
+                    <option value="">— Select alert type —</option>
+                  </select>
+                </div>
+
+                <div id="routingPreview" class="routing-preview hidden">
+                  <div class="routing-preview-row">
+                    <span class="rp-label">Severity</span>
+                    <span id="rpSeverity" class="sev-badge"></span>
+                  </div>
+                  <div class="routing-preview-row">
+                    <span class="rp-label">Groups</span>
+                    <span id="rpGroups"></span>
+                  </div>
+                  <div class="routing-preview-row">
+                    <span class="rp-label">Channels</span>
+                    <span id="rpChannels"></span>
+                  </div>
+                  <div class="routing-preview-row" id="rpEscalationRow">
+                    <span class="rp-label">Escalation</span>
+                    <span id="rpEscalation"></span>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="alertTitle">Alert Title *</label>
                   <input type="text" class="form-input" id="alertTitle"
-                    placeholder="e.g. Fire Alarm — Floor 12"
+                    placeholder="e.g. Water Leak — Room 412"
                     maxlength="80"
                     oninput="app.updateCharCount('alertTitle','titleCount',80)" />
                   <div class="char-count"><span id="titleCount">0</span>/80</div>
@@ -195,21 +207,53 @@
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="submitIcon">
                     <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span id="submitBtnText">Broadcast Alert</span>
+                  <span id="submitBtnText">Route Alert</span>
                 </button>
-                <div class="form-disclaimer">This will send a push notification to all staff devices at this property.</div>
+                <div class="form-disclaimer">Alert will be automatically routed to the configured groups and channels.</div>
                 <div style="height:40px"></div>
               </div>
             </div>
           </div>
 
-          <!-- ══ SCREEN: SETTINGS ══ -->
-          <div class="screen hidden" id="screen-settings" data-screen="settings">
+          <!-- ══ SCREEN: ROUTING RULES ══ -->
+          <div class="screen hidden" id="screen-routing" data-screen="routing">
             <div class="screen-header dark-header">
               <div>
                 <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Configuration</div>
-                <div class="screen-title">Settings</div>
-                <div class="screen-subtitle">Demo controls &amp; app info</div>
+                <div class="screen-title">Routing Rules</div>
+                <div class="screen-subtitle">Alert type → severity → groups</div>
+              </div>
+            </div>
+            <div class="screen-scroll-area">
+              <div id="routingRulesList" style="padding:10px 14px 24px;display:flex;flex-direction:column;gap:8px;">
+                <!-- injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SCREEN: GROUPS ══ -->
+          <div class="screen hidden" id="screen-groups" data-screen="groups">
+            <div class="screen-header dark-header">
+              <div>
+                <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Distribution</div>
+                <div class="screen-title">Groups</div>
+                <div class="screen-subtitle">Members &amp; channel capabilities</div>
+              </div>
+            </div>
+            <div class="screen-scroll-area">
+              <div id="groupsList" style="padding:10px 14px 24px;display:flex;flex-direction:column;gap:10px;">
+                <!-- injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SCREEN: DEMO ══ -->
+          <div class="screen hidden" id="screen-demo" data-screen="demo">
+            <div class="screen-header dark-header">
+              <div>
+                <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px">Controls</div>
+                <div class="screen-title">Demo</div>
+                <div class="screen-subtitle">Trigger scenarios &amp; configure</div>
               </div>
             </div>
             <div class="screen-scroll-area">
@@ -223,7 +267,7 @@
                       <div class="role-icon-lg" id="settingsRoleIcon">👑</div>
                       <div>
                         <div class="role-name-text" id="settingsRoleName">Administrator</div>
-                        <div class="role-desc-text" id="settingsRoleDesc">Can create, broadcast, and view alerts</div>
+                        <div class="role-desc-text" id="settingsRoleDesc">Can create, route, and view alerts</div>
                       </div>
                     </div>
                     <label class="toggle-switch" title="Toggle role">
@@ -232,26 +276,48 @@
                     </label>
                   </div>
                   <div class="divider"></div>
-                  <div class="role-hint">💡 Toggle to simulate different user roles. Admin unlocks the Create screen and broadcast FAB.</div>
+                  <div class="role-hint">💡 Toggle to simulate different user roles. Admin unlocks the Create screen.</div>
                 </div>
 
-                <!-- SESSION STATS -->
+                <!-- SCENARIO TRIGGERS -->
+                <div class="section-label" style="margin-top:20px">Trigger Scenarios</div>
+                <div class="settings-card">
+                  <div style="font-size:11.5px;color:var(--text-3);margin-bottom:12px;line-height:1.5">Fire pre-built scenarios through the routing engine to see the contrast in delivery.</div>
+
+                  <button class="scenario-btn scenario-p3" onclick="app.triggerScenario('waterLeak')">
+                    <div class="scenario-btn-icon">🚰</div>
+                    <div class="scenario-btn-content">
+                      <div class="scenario-btn-title">Water Leak — Room 412</div>
+                      <div class="scenario-btn-sub">P3 · Housekeeping Issue · 3 recipients · email + push</div>
+                    </div>
+                  </button>
+
+                  <button class="scenario-btn scenario-p1" onclick="app.triggerScenario('emergency911')" style="margin-top:8px">
+                    <div class="scenario-btn-icon">🚨</div>
+                    <div class="scenario-btn-content">
+                      <div class="scenario-btn-title">911 Emergency Call — Lobby</div>
+                      <div class="scenario-btn-sub">P1 · Emergency · 4+ recipients · ALL channels</div>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- STATS -->
                 <div class="section-label" style="margin-top:20px">Session Stats</div>
                 <div class="stats-grid">
                   <div class="stat-card">
                     <div class="stat-card-icon">📋</div>
-                    <div class="stat-num" id="statTotal">6</div>
+                    <div class="stat-num" id="statTotal">0</div>
                     <div class="stat-lbl">Total</div>
                   </div>
                   <div class="stat-card">
-                    <div class="stat-card-icon">✅</div>
-                    <div class="stat-num green" id="statAcked">2</div>
-                    <div class="stat-lbl">Acked</div>
+                    <div class="stat-card-icon">📬</div>
+                    <div class="stat-num" id="statDelivered" style="color:var(--jazz-blue)">0</div>
+                    <div class="stat-lbl">Delivered</div>
                   </div>
                   <div class="stat-card">
-                    <div class="stat-card-icon">🔴</div>
-                    <div class="stat-num red" id="statCritical">1</div>
-                    <div class="stat-lbl">Critical</div>
+                    <div class="stat-card-icon">✅</div>
+                    <div class="stat-num green" id="statAcked">0</div>
+                    <div class="stat-lbl">Acked</div>
                   </div>
                 </div>
 
@@ -259,7 +325,7 @@
                 <div class="section-label" style="margin-top:20px">Demo Controls</div>
                 <div class="settings-card">
                   <div style="font-size:13px;color:var(--text-2);margin-bottom:2px;line-height:1.5">
-                    Reset all alerts to initial mock data and restore Admin role. Useful for re-running the demo.
+                    Reset all alerts to the initial seed state with two pre-built demo scenarios.
                   </div>
                   <button class="reset-btn" id="resetBtn" onclick="app.resetDemoData()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -270,17 +336,38 @@
                   </button>
                 </div>
 
+                <!-- SEVERITY REFERENCE -->
+                <div class="section-label" style="margin-top:20px">Severity Reference</div>
+                <div class="settings-card">
+                  <div class="sev-ref-row">
+                    <span class="sev-badge sev-p1">P1 Critical</span>
+                    <span style="font-size:12px;color:var(--text-2)">Immediate life/safety. ALL channels.</span>
+                  </div>
+                  <div class="sev-ref-row">
+                    <span class="sev-badge sev-p2">P2 High</span>
+                    <span style="font-size:12px;color:var(--text-2)">Ops disruption. SMS + email + push.</span>
+                  </div>
+                  <div class="sev-ref-row">
+                    <span class="sev-badge sev-p3">P3 Normal</span>
+                    <span style="font-size:12px;color:var(--text-2)">Routine issue. Email + push only.</span>
+                  </div>
+                  <div class="sev-ref-row" style="border:none">
+                    <span class="sev-badge sev-p4">P4 Info</span>
+                    <span style="font-size:12px;color:var(--text-2)">FYI only. Push notification.</span>
+                  </div>
+                </div>
+
                 <!-- APP INFO -->
                 <div class="section-label" style="margin-top:20px">App Info</div>
                 <div class="settings-card">
                   <div class="info-row"><span>App Name</span><span class="info-val">Jazz Note</span></div>
-                  <div class="info-row"><span>Version</span><span class="info-val">2.0.0 (POC)</span></div>
+                  <div class="info-row"><span>Version</span><span class="info-val">3.0.0 (POC)</span></div>
                   <div class="info-row"><span>Build</span><span class="info-val">Demo — No Backend</span></div>
                   <div class="info-row"><span>Property</span><span class="info-val">MDCC-001</span></div>
-                  <div class="info-row" style="border:none"><span>Notifications</span><span class="info-val">In-App Only</span></div>
+                  <div class="info-row" style="border:none"><span>Routing</span><span class="info-val">8 Active Rules</span></div>
                 </div>
 
-                <!-- JAZZWARE POWERED BY -->
+                <!-- BRAND SECTION -->
                 <div class="brand-section">
                   <div class="brand-accent-bar"></div>
                   <div class="powered-by">
@@ -316,13 +403,23 @@
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span class="tab-badge" id="tabBadge">3</span>
+              <span class="tab-badge hidden" id="tabBadge">0</span>
             </div>
             <span class="tab-label">Alerts</span>
           </button>
 
-          <button class="tab-item" data-tab="create" onclick="app.navigate('create')" id="createTab" aria-label="Create alert">
+          <button class="tab-item" data-tab="routing" onclick="app.navigate('routing')" aria-label="Routing rules">
             <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M3 12h12M3 18h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M19 15l2 2-2 2M17 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="tab-label">Routing</span>
+          </button>
+
+          <button class="tab-item" data-tab="create" onclick="app.navigate('create')" id="createTab" aria-label="Create alert">
+            <div class="tab-icon create-tab-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
                 <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -331,14 +428,24 @@
             <span class="tab-label">Create</span>
           </button>
 
-          <button class="tab-item" data-tab="settings" onclick="app.navigate('settings')" aria-label="Settings">
+          <button class="tab-item" data-tab="groups" onclick="app.navigate('groups')" aria-label="Distribution groups">
             <div class="tab-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <span class="tab-label">Settings</span>
+            <span class="tab-label">Groups</span>
+          </button>
+
+          <button class="tab-item" data-tab="demo" onclick="app.navigate('demo')" aria-label="Demo controls">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="tab-label">Demo</span>
           </button>
         </nav>
 
@@ -356,7 +463,7 @@
       </svg>
       <span class="footer-brand">Powered by Jazzware</span>
       <span class="footer-sep">·</span>
-      <span>Jazz Note v2.0</span>
+      <span>Jazz Note v3.0</span>
       <span class="footer-sep">·</span>
       <span>Marriott International POC</span>
       <span class="footer-sep">·</span>
